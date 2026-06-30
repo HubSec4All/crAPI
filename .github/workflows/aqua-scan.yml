@@ -11,10 +11,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Aqua Supply Chain Scanner
+      - name: Aqua Supply Chain — Scan & Report
         uses: docker://aquasec/trivy:latest
         with:
           args: fs --scanners vuln,secret,misconfig --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL /github/workspace
+        env:
+          AQUA_KEY: ${{ secrets.AQUA_KEY }}
+          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
+          TRIVY_RUN_AS_PLUGIN: aqua
+
+      - name: Aqua Supply Chain — Gate (Critical/High)
+        uses: docker://aquasec/trivy:latest
+        if: always()
+        with:
+          args: fs --scanners vuln --severity CRITICAL,HIGH --exit-code 1 /github/workspace
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
