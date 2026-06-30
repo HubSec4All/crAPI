@@ -20,16 +20,4 @@ jobs:
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
           TRIVY_RUN_AS_PLUGIN: aqua
 
-  image-scan:
-    name: Container Image Scan
-    runs-on: ubuntu-latest
-    needs: scan
-    steps:
-      - name: Scan crAPI Image
-        uses: docker://aquasec/trivy:latest
-        with:
-          args: image --scanners vuln,secret,misconfig --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL crapi/crapi:latest
-        env:
-          AQUA_KEY: ${{ secrets.AQUA_KEY }}
-          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
-          TRIVY_RUN_AS_PLUGIN: aqua
+
