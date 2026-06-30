@@ -22,10 +22,18 @@ jobs:
             -e AQUA_KEY \
             -e AQUA_SECRET \
             -e TRIVY_RUN_AS_PLUGIN=aqua \
-            -e OVERRIDE_REPOSITORY_URL=https://github.com/HubSec4All/crAPI \
-            -e OVERRIDE_REPOSITORY=HubSec4All/crAPI \
-            -e OVERRIDE_BRANCH=develop \
-            -e OVERRIDE_REPOSITORY_SOURCE=github \
+            -e GITHUB_REPOSITORY \
+            -e GITHUB_REF_NAME \
+            -e GITHUB_SHA \
+            -e GITHUB_ACTOR \
+            -e GITHUB_WORKFLOW \
+            -e GITHUB_HEAD_REF \
+            -e GITHUB_BASE_REF \
+            -e GITHUB_EVENT_NAME \
+            -e GITHUB_SERVER_URL \
+            -e GITHUB_API_URL \
+            -e GITHUB_REF \
+            -e GITHUB_WORKSPACE \
             -v $(pwd):/scanning \
             aquasec/trivy:latest \
             fs --scanners vuln,secret,misconfig \
@@ -42,6 +50,17 @@ jobs:
             -e AQUA_KEY \
             -e AQUA_SECRET \
             -e TRIVY_RUN_AS_PLUGIN=aqua \
+            -e GITHUB_REPOSITORY \
+            -e GITHUB_REF_NAME \
+            -e GITHUB_SHA \
+            -e GITHUB_ACTOR \
+            -e GITHUB_WORKFLOW \
+            -e GITHUB_HEAD_REF \
+            -e GITHUB_BASE_REF \
+            -e GITHUB_EVENT_NAME \
+            -e GITHUB_SERVER_URL \
+            -e GITHUB_API_URL \
+            -e GITHUB_REF \
             aquasec/trivy:latest \
             image --scanners vuln,secret,misconfig \
                   --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
