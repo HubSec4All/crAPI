@@ -18,7 +18,7 @@ jobs:
 
       - name: Aqua Supply Chain Scanner
         run: |
-          docker run \
+          docker run --user 0:0 \
             -e AQUA_KEY \
             -e AQUA_SECRET \
             -e TRIVY_RUN_AS_PLUGIN=aqua \
