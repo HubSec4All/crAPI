@@ -1,60 +1,35 @@
-name: Aqua Security Scan
+name: Aqua Supply Chain Scan
 on:
   push:
     branches: [develop]
   pull_request:
     branches: [develop]
 
-env:
-  AQUA_KEY: ${{ secrets.AQUA_KEY }}
-  AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
-
 jobs:
-  supply-chain-scan:
-    name: Supply Chain (Code)
+  scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Aqua Supply Chain Scanner
-        run: |
-          docker run \
-            -e AQUA_KEY \
-            -e AQUA_SECRET \
-            -e TRIVY_RUN_AS_PLUGIN=aqua \
-            -e GITHUB_ACTIONS=true \
-            -e GITHUB_REPOSITORY \
-            -e GITHUB_REF_NAME \
-            -e GITHUB_SHA \
-            -e GITHUB_ACTOR \
-            -e GITHUB_WORKFLOW \
-            -e HOME \
-            -v $(pwd):/scanning \
-            aquasec/trivy:latest \
-            fs --scanners vuln,secret,misconfig \
-               --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
-               /scanning
+      - name: Run Aqua Supply Chain Scanner
+        uses: docker://aquasec/trivy:latest
+        with:
+          args: fs --scanners vuln,secret,misconfig --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL /github/workspace
+        env:
+          AQUA_KEY: ${{ secrets.AQUA_KEY }}
+          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
+          TRIVY_RUN_AS_PLUGIN: aqua
 
   image-scan:
     name: Container Image Scan
     runs-on: ubuntu-latest
+    needs: scan
     steps:
-      - uses: actions/checkout@v4
-      - name: Aqua Image Scanner
-        run: |
-          docker run \
-            -e AQUA_KEY \
-            -e AQUA_SECRET \
-            -e TRIVY_RUN_AS_PLUGIN=aqua \
-            -e GITHUB_ACTIONS=true \
-            -e GITHUB_REPOSITORY \
-            -e GITHUB_REF_NAME \
-            -e GITHUB_SHA \
-            -e GITHUB_ACTOR \
-            -e GITHUB_WORKFLOW \
-            -e HOME \
-            -v $(pwd):/scanning \
-            aquasec/trivy:latest \
-            image --scanners vuln,secret,misconfig \
-                  --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
-                  crapi/crapi:latest
+      - name: Scan crAPI Image
+        uses: docker://aquasec/trivy:latest
+        with:
+          args: image --scanners vuln,secret,misconfig --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL crapi/crapi:latest
+        env:
+          AQUA_KEY: ${{ secrets.AQUA_KEY }}
+          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
+          TRIVY_RUN_AS_PLUGIN: aqua
