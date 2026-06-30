@@ -1,0 +1,35 @@
+name: Aqua Security Scan
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+
+jobs:
+  supply-chain-scan:
+    name: Supply Chain (Code)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Aqua Supply Chain Scanner
+        uses: docker://aquasec/trivy:latest
+        with:
+          args: fs --scanners vuln,secret,misconfig --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL /github/workspace
+        env:
+          AQUA_KEY: ${{ secrets.AQUA_KEY }}
+          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
+          TRIVY_RUN_AS_PLUGIN: aqua
+
+  image-scan:
+    name: Container Image Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aqua Image Scanner
+        uses: docker://aquasec/trivy:latest
+        with:
+          args: image --scanners vuln,secret,misconfig --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL crapi/crapi:latest
+        env:
+          AQUA_KEY: ${{ secrets.AQUA_KEY }}
+          AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
+          TRIVY_RUN_AS_PLUGIN: aqua
