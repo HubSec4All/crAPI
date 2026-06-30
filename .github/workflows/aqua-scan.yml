@@ -22,12 +22,10 @@ jobs:
             -e AQUA_KEY \
             -e AQUA_SECRET \
             -e TRIVY_RUN_AS_PLUGIN=aqua \
-            -e GIT_CONFIG_PARAMETERS="safe.directory=/scanning" \
             -v $(pwd):/scanning \
+            --entrypoint sh \
             aquasec/trivy:latest \
-            fs --scanners vuln,secret,misconfig \
-               --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
-               /scanning
+            -c "git config --global safe.directory /scanning && trivy fs --scanners vuln,secret,misconfig --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL /scanning"
 
   image-scan:
     name: Container Image Scan
