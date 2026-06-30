@@ -18,12 +18,14 @@ jobs:
 
       - name: Aqua Supply Chain Scanner
         run: |
-          git config -f .gitconfig-safe safe.directory '*'
           docker run \
             -e AQUA_KEY \
             -e AQUA_SECRET \
             -e TRIVY_RUN_AS_PLUGIN=aqua \
-            -e GIT_CONFIG_GLOBAL=/scanning/.gitconfig-safe \
+            -e OVERRIDE_REPOSITORY_URL=https://github.com/HubSec4All/crAPI \
+            -e OVERRIDE_REPOSITORY=HubSec4All/crAPI \
+            -e OVERRIDE_BRANCH=develop \
+            -e OVERRIDE_REPOSITORY_SOURCE=github \
             -v $(pwd):/scanning \
             aquasec/trivy:latest \
             fs --scanners vuln,secret,misconfig \
